@@ -1,0 +1,23 @@
+[project]
+name = "RAG_against_the_machine"
+version = "1.6"
+description = ""
+readme = "README.md"
+authors = [
+    { name = "dansimoe"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pydantic",
+    "flake8",
+    "mypy",
+	"accelerate",
+    "transformers",
+    "torch",
+    "rank_bm25"
+]
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
