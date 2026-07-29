@@ -1,3 +1,7 @@
+# Data
+data/
+moulinette/
+
 # Python
 __pycache__/
 *.pyc
@@ -11,10 +15,7 @@ venv/
 # VSCode
 .vscode/
 
-# OS
-.DS_Store
-Thumbs.db
-
 # Anexed Folders
 vllm-0.10.1/
 datasets_public/
+sample_answers.sh

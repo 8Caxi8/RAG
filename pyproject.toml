@@ -1,7 +1,7 @@
 [project]
 name = "RAG_against_the_machine"
 version = "1.6"
-description = ""
+description = "A Retrieval-Augmented Generation (RAG) system that answers questions about the vLLM codebase, using BM25 retrieval over chunked source code and documentation, and Qwen3-0.6B for answer generation."
 readme = "README.md"
 authors = [
     { name = "dansimoe"}
@@ -15,9 +15,10 @@ dependencies = [
 	"accelerate",
     "transformers",
     "torch",
-    "rank_bm25"
+    "bm25s",
+    "fire",
+    "tqdm"
 ]
 
 [tool.mypy]
-strict = true
 plugins = ["pydantic.mypy"]
