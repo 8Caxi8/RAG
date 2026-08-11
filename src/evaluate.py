@@ -3,8 +3,8 @@ from .models import AnsweredQuestion, MinimalSearchResults, MinimalSource
 DEFAULT_OVERLAP_THRESHOLD = 0.05
 
 
-def _overlap_ratio(retrieved: MinimalSource, correct: MinimalSource) -> float:
-    """Fraction of `correct`'s character range covered by `retrieved`.
+def _iou(retrieved: MinimalSource, correct: MinimalSource) -> float:
+    """Intersection over Union (IoU) between two character ranges.
 
     Args:
         retrieved: A source returned by the retrieval system.
@@ -12,9 +12,13 @@ def _overlap_ratio(retrieved: MinimalSource, correct: MinimalSource) -> float:
 
     Returns:
         0.0 if the sources are in different files or don't overlap at
-        all; otherwise the overlap length divided by the length of the
-        ground-truth source's range (1.0 means `retrieved` fully covers
-        `correct`).
+        all; otherwise the length of the overlapping range divided by
+        the length of the *union* of the two ranges (1.0 means the two
+        ranges are identical). Note this is symmetric and penalizes a
+        retrieved chunk that is much larger than the correct span, even
+        if it fully contains it — unlike a plain "coverage of correct"
+        ratio, which would give 1.0 regardless of how much extra
+        content surrounds the correct span.
     """
     if retrieved.file_path != correct.file_path:
         return 0.0
@@ -23,12 +27,16 @@ def _overlap_ratio(retrieved: MinimalSource, correct: MinimalSource) -> float:
                         correct.first_character_index)
     overlap_end = min(retrieved.last_character_index,
                       correct.last_character_index)
-    overlap = max(0, overlap_end - overlap_start)
+    intersection = max(0, overlap_end - overlap_start)
 
+    retrieved_len = (retrieved.last_character_index -
+                     retrieved.first_character_index)
     correct_len = correct.last_character_index - correct.first_character_index
-    if correct_len <= 0:
+    union = retrieved_len + correct_len - intersection
+
+    if union <= 0:
         return 0.0
-    return overlap / correct_len
+    return intersection / union
 
 
 def _is_found(
@@ -37,8 +45,7 @@ def _is_found(
     threshold: float = DEFAULT_OVERLAP_THRESHOLD,
 ) -> bool:
     """Whether any retrieved source overlaps `correct` by >= threshold."""
-    return any(_overlap_ratio(r, correct) >= threshold
-               for r in retrieved_sources)
+    return any(_iou(r, correct) >= threshold for r in retrieved_sources)
 
 
 def recall_at_k(

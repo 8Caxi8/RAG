@@ -1,4 +1,4 @@
-import fire
+import fire  # type: ignore
 from .ragcli import RagCLI
 
 SYSTEM_PROMPT = (

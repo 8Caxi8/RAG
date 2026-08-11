@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, logging
+import torch  # type: ignore
+from transformers import (AutoModelForCausalLM,  # type: ignore
+                          AutoTokenizer,
+                          logging)
 
 logging.set_verbosity_error()  # keep the console clean
 
@@ -150,7 +152,6 @@ class BaseLLM(ABC):
                     pad_token_id=self.tokenizer.pad_token_id,
                 )
 
-            # Only decode the newly generated tokens, not the prompt itself.
             new_tokens = output_ids[0][inputs["input_ids"].shape[-1]:]
             return str(self.tokenizer.decode(new_tokens,
                                              skip_special_tokens=True)).strip()

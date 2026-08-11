@@ -1,7 +1,7 @@
 import ast
 import re
 from pathlib import Path
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator  # type: ignore
 
 
 class Chunk(BaseModel):
@@ -77,16 +77,10 @@ def _node_span(node: ast.stmt, line_offsets: list[int]) -> tuple[int, int]:
         A tuple (first_character_index, last_character_index).
     """
     start = line_offsets[node.lineno - 1] + node.col_offset
-    if node.end_lineno is not None:
-        end_lineno = node.end_lineno
-    else:
-        end_lineno = node.lineno
-
-    if node.end_col_offset is not None:
-        end_col = node.end_col_offset
-    else:
-        end_col = 0
-
+    end_lineno = (node.end_lineno
+                  if node.end_lineno is not None else node.lineno)
+    end_col = (node.end_col_offset
+               if node.end_col_offset is not None else 0)
     end = line_offsets[end_lineno - 1] + end_col
     return start, end
 
@@ -171,7 +165,6 @@ def chunk_python_source(
                                   max_chunk_size))
 
     if not chunks and source.strip():
-        # e.g. an empty module body but non-empty file (comments only).
         chunks = chunk_text(file_path, source, max_chunk_size)
 
     return chunks
@@ -184,7 +177,7 @@ def chunk_text(
     file_path: str,
     text: str,
     max_chunk_size: int = 2000,
-    overlap: int = 200,
+    overlap: int = 0,
 ) -> list[Chunk]:
     """Chunk plain text or Markdown by greedily packing paragraphs.
 
@@ -255,10 +248,8 @@ def chunk_text(
         else:
             prev_end = current_end
             flush()
-            # Anchor the overlap on where the previous chunk ended (not on
-            # the new paragraph's start), so the new chunk repeats the
-            # tail of the previous one instead of collapsing back to 0.
             current_start = max(prev_end - overlap, 0)
+            current_start = max(current_start, end - max_chunk_size)
             current_end = end
 
     flush()

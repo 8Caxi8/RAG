@@ -1,5 +1,6 @@
 import uuid
-from pydantic import BaseModel, Field
+from typing import List
+from pydantic import BaseModel, ConfigDict, Field  # type: ignore
 
 
 class MinimalSource(BaseModel):
@@ -20,22 +21,23 @@ class UnansweredQuestion(BaseModel):
 class AnsweredQuestion(UnansweredQuestion):
     """A question with its ground-truth sources and answer."""
 
-    sources: list[MinimalSource]
+    sources: List[MinimalSource]
     answer: str
 
 
 class RagDataset(BaseModel):
     """A dataset of RAG questions, answered or not."""
 
-    rag_questions: list[AnsweredQuestion | UnansweredQuestion]
+    rag_questions: List[AnsweredQuestion | UnansweredQuestion]
 
 
 class MinimalSearchResults(BaseModel):
     """Search results for a single question."""
 
+    model_config = ConfigDict(populate_by_name=True)
     question_id: str
-    question: str
-    retrieved_sources: list[MinimalSource]
+    question: str = Field(alias="question_str")
+    retrieved_sources: List[MinimalSource]
 
 
 class MinimalAnswer(MinimalSearchResults):
@@ -47,11 +49,11 @@ class MinimalAnswer(MinimalSearchResults):
 class StudentSearchResults(BaseModel):
     """Search results produced by the student's system for a dataset."""
 
-    search_results: list[MinimalSearchResults]
+    search_results: List[MinimalSearchResults]
     k: int
 
 
 class StudentSearchResultsAndAnswer(StudentSearchResults):
     """Search results with generated answers, for a dataset."""
 
-    search_results: list[MinimalAnswer]  # type: ignore
+    search_results: List[MinimalAnswer]  # type: ignore[assignment]

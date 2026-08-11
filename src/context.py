@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from .chunking import Chunk
 from .models import MinimalSource
 

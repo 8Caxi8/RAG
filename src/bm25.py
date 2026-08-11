@@ -1,20 +1,12 @@
 import pickle
 import re
 from pathlib import Path
-import bm25s
-from tqdm import tqdm
+import bm25s  # type: ignore
+from tqdm import tqdm  # type: ignore
 from .chunking import Chunk, chunk_file
 
 _TOKEN_RE = re.compile(r"[A-Za-z0-9_]+")
 
-# Common English stopwords. These carry almost no discriminating signal
-# for retrieval (they appear in nearly every chunk and in nearly every
-# question), and their high document frequency is exactly what drags
-# BM25's IDF term negative on a large corpus (see the bug we hit
-# earlier where negative scores silently excluded valid matches).
-# Filtering them out of both the indexed chunks and the query tokens
-# lets the ranking be driven by the words that actually distinguish
-# one chunk from another.
 _STOPWORDS = frozenset({
     "a", "an", "and", "are", "as", "at", "be", "been", "being", "by",
     "can", "could", "did", "do", "does", "doing", "done", "for", "from",
@@ -92,10 +84,6 @@ class BM25Index:
     def _fit(self) -> None:
         """Tokenize all chunks and fit the underlying BM25 model."""
         tokenized_corpus = [tokenize(chunk.text) for chunk in self.chunks]
-        # method="robertson" reproduces the classic BM25 IDF formula
-        # (same one rank_bm25 uses), which is what our b/k1 tuning was
-        # validated against. bm25s's default ("lucene") uses a
-        # differently-bounded IDF and gave slightly different rankings.
         self._bm25 = bm25s.BM25(k1=self.k1, b=self.b, method="robertson")
         self._bm25.index(tokenized_corpus, show_progress=False)
 
@@ -155,7 +143,6 @@ class BM25Index:
         if not query_tokens:
             return []
 
-        # bm25s raises if k exceeds the corpus size, unlike rank_bm25.
         k_effective = min(k, len(self.chunks))
         results, _scores = self._bm25.retrieve(
             [query_tokens], k=k_effective, show_progress=False
