@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 from pydantic import BaseModel, Field, model_validator  # type: ignore
 
+_PARAGRAPH_RE = re.compile(r"\n\s*\n")
+
 
 class Chunk(BaseModel):
     """A contiguous slice of a source file, ready to be indexed.
@@ -170,9 +172,6 @@ def chunk_python_source(
     return chunks
 
 
-_PARAGRAPH_RE = re.compile(r"\n\s*\n")
-
-
 def chunk_text(
     file_path: str,
     text: str,
@@ -204,7 +203,7 @@ def chunk_text(
 
     paragraphs: list[tuple[int, str]] = []
     pos = 0
-    for part in _PARAGRAPH_RE.split(text):
+    for i, part in enumerate(_PARAGRAPH_RE.split(text)):
         idx = text.index(part, pos) if part else pos
         paragraphs.append((idx, part))
         pos = idx + len(part)

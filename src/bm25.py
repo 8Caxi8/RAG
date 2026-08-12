@@ -1,8 +1,9 @@
+
 import pickle
 import re
 from pathlib import Path
-import bm25s  # type: ignore
-from tqdm import tqdm  # type: ignore
+import bm25s
+from tqdm import tqdm
 from .chunking import Chunk, chunk_file
 
 _TOKEN_RE = re.compile(r"[A-Za-z0-9_]+")
@@ -37,15 +38,20 @@ def tokenize(text: str) -> list[str]:
     tokens: list[str] = []
     for raw in _TOKEN_RE.findall(text):
         tokens.append(raw.lower())
-        # split snake_case
+
         parts = raw.split("_")
         if len(parts) > 1:
             tokens.extend(p.lower() for p in parts if p)
-        # split camelCase / PascalCase
+
         camel_parts = re.findall(r"[A-Z]?[a-z0-9]+|[A-Z]+(?=[A-Z]|$)", raw)
         if len(camel_parts) > 1:
             tokens.extend(p.lower() for p in camel_parts if p)
     return [t for t in tokens if t not in _STOPWORDS]
+
+
+_KNOWN_TEXT_FILENAMES = frozenset({
+    "LICENSE", "NOTICE", "CONTRIBUTING", "Dockerfile", "AUTHORS", "COPYING",
+})
 
 
 class BM25Index:
@@ -92,7 +98,9 @@ class BM25Index:
         cls,
         repo_path: Path,
         max_chunk_size: int = 2000,
-        extensions: tuple[str, ...] = (".py", ".md"),
+        extensions: tuple[str, ...] = (
+            ".py", ".md", ".txt", ".rst", ".yaml", ".yml", ".toml", ".cfg",
+            ".ini"),
         k1: float = 1.5,
         b: float = 0.75,
     ) -> "BM25Index":
@@ -101,7 +109,11 @@ class BM25Index:
         Args:
             repo_path: Root directory of the repository to index.
             max_chunk_size: Maximum number of characters per chunk.
-            extensions: File extensions to include (others are skipped).
+            extensions: File extensions to include. Files with no
+                extension at all (e.g. ``LICENSE``) are matched
+                separately against :data:`_KNOWN_TEXT_FILENAMES`, since
+                an empty ``path.suffix`` can never match an extensions
+                tuple no matter how it's configured.
             k1: BM25 term-frequency saturation parameter.
             b: BM25 length-normalization parameter.
 
@@ -111,7 +123,10 @@ class BM25Index:
         matching_files = [
             path
             for path in sorted(repo_path.rglob("*"))
-            if path.is_file() and path.suffix in extensions
+            if path.is_file()
+            and (
+                path.suffix in extensions or path.name in
+                _KNOWN_TEXT_FILENAMES)
         ]
 
         chunks: list[Chunk] = []
@@ -163,8 +178,8 @@ class BM25Index:
         with (index_dir / self._CHUNKS_FILE).open("wb") as f:
             pickle.dump(self.chunks, f)
         if self._bm25 is not None:
-            self._bm25.save(str(index_dir / self._INDEX_SUBDIR),
-                            show_progress=False)
+            self._bm25.save(
+                str(index_dir / self._INDEX_SUBDIR), show_progress=False)
 
     @classmethod
     def load(cls, index_dir: Path) -> "BM25Index":
