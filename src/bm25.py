@@ -2,8 +2,8 @@
 import pickle
 import re
 from pathlib import Path
-import bm25s
-from tqdm import tqdm
+import bm25s  # type: ignore
+from tqdm import tqdm  # type: ignore
 from .chunking import Chunk, chunk_file
 
 _TOKEN_RE = re.compile(r"[A-Za-z0-9_]+")
@@ -49,16 +49,12 @@ def tokenize(text: str) -> list[str]:
     return [t for t in tokens if t not in _STOPWORDS]
 
 
-_KNOWN_TEXT_FILENAMES = frozenset({
-    "LICENSE", "NOTICE", "CONTRIBUTING", "Dockerfile", "AUTHORS", "COPYING",
-})
-
-
 class BM25Index:
     """A BM25 retrieval index over a list of source-code/text chunks."""
 
     _INDEX_SUBDIR = "bm25s_index"
     _CHUNKS_FILE = "chunks.pkl"
+    _KNOWN_TEXT_FILENAMES = frozenset({"LICENSE"})
 
     def __init__(
         self,
@@ -126,7 +122,7 @@ class BM25Index:
             if path.is_file()
             and (
                 path.suffix in extensions or path.name in
-                _KNOWN_TEXT_FILENAMES)
+                cls._KNOWN_TEXT_FILENAMES)
         ]
 
         chunks: list[Chunk] = []
