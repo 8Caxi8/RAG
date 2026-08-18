@@ -2,8 +2,8 @@
 import pickle
 import re
 from pathlib import Path
-import bm25s  # type: ignore
-from tqdm import tqdm  # type: ignore
+import bm25s
+from tqdm import tqdm
 from .chunking import Chunk, chunk_file
 
 _TOKEN_RE = re.compile(r"[A-Za-z0-9_]+")

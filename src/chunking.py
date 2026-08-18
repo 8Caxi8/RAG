@@ -1,7 +1,7 @@
 import ast
 import re
 from pathlib import Path
-from pydantic import BaseModel, Field, model_validator  # type: ignore
+from pydantic import BaseModel, Field, model_validator
 
 _PARAGRAPH_RE = re.compile(r"\n\s*\n")
 

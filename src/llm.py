@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-import torch  # type: ignore
-from transformers import (AutoModelForCausalLM,  # type: ignore
+import torch
+from transformers import (AutoModelForCausalLM,
                           AutoTokenizer,
                           logging)
 

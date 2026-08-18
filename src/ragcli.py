@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 from .bm25 import BM25Index
 from .chunking import Chunk
 from .context import ContextCreator

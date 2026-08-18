@@ -1,6 +1,6 @@
 import uuid
 from typing import List
-from pydantic import BaseModel, ConfigDict, Field  # type: ignore
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class MinimalSource(BaseModel):
