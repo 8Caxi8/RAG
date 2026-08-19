@@ -34,8 +34,8 @@ class RagCLI:
         repo_path: str = "data/raw/vllm-0.10.1",
         max_chunk_size: int = 2000,
         index_dir: str = "data/processed",
-        k1: float = 1.5,
-        b: float = 0.2,
+        k1: float = 1.2,
+        b: float = 0.25,
     ) -> None:
         """Ingest a repository and build the searchable BM25 index.
 
