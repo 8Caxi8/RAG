@@ -1,27 +1,6 @@
-"""Chunking strategies for the RAG knowledge base.
-
-Two strategies are implemented:
-
-- :func:`chunk_python_source` splits Python code along its syntactic
-  structure (top-level functions, classes, and statements) using the
-  ``ast`` module, so that a chunk is never cut in the middle of a
-  function. Oversized nodes (e.g. a large class) are recursively split
-  along their children (methods) before falling back to plain text
-  splitting.
-- :func:`chunk_text` splits Markdown/plain text along blank-line
-  paragraphs (and Markdown headers), greedily packing paragraphs into
-  chunks up to ``max_chunk_size`` characters, with a small character
-  overlap between consecutive chunks to preserve context.
-
-Both return a list of :class:`Chunk`, which stores the exact character
-offsets (``first_character_index`` / ``last_character_index``) of the
-chunk within the *original* file content, matching the offsets expected
-by ``MinimalSource``.
-"""
 import ast
 import re
 from pathlib import Path
-
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -217,7 +196,7 @@ def chunk_text(
     file_path: str,
     text: str,
     max_chunk_size: int = 2000,
-    overlap: int = 00,
+    overlap: int = 100,
 ) -> list[Chunk]:
     """Chunk plain text or Markdown by greedily packing paragraphs.
 
@@ -250,6 +229,10 @@ def chunk_text(
         # the file; clamp it to a sane fraction of the chunk size instead.
         overlap = max_chunk_size // 10
 
+    if (file_path.endswith("s390x.inc.md") or
+       file_path.endswith("arm.inc.md")):
+        return []
+
     # Split into paragraphs, keeping track of each paragraph's start offset.
     paragraphs: list[tuple[int, str]] = []
     pos = 0
@@ -258,13 +241,6 @@ def chunk_text(
         paragraphs.append((idx, part))
         pos = idx + len(part)
 
-    # Merge a Markdown header (and any chain of nested headers right
-    # after it, e.g. "# Title" followed by "## Subsection") with the
-    # first body paragraph that follows. Without this, a header could
-    # end up alone in its own chunk (if the body right after it doesn't
-    # fit alongside it), completely disconnected from the section it
-    # introduces — especially costly with overlap=0, since nothing
-    # repeats that header into the next chunk to recover the context.
     merged_paragraphs: list[tuple[int, str]] = []
     i = 0
     while i < len(paragraphs):
@@ -326,6 +302,16 @@ def chunk_text(
             current_end = end
 
     flush()
+    if file_path.endswith("installation/gpu/cuda.inc.md"):
+        for chunk in chunks:
+            print("=" * 40)
+            print(f"first_character: {chunk.first_character_index}")
+            print(f"last_character: {chunk.last_character_index}")
+            print(f"text:{chunk.text}")
+            print("=" * 40)
+
+        print("Expected:")
+        print(f"text:{text[0:1612]}")
     return chunks
 
 

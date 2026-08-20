@@ -1,0 +1,107 @@
+perguntas erradas:
+- 2
+
+        {
+      "question_id": "48723b36-2167-4949-a96c-1d599716c645",
+      "question": "What is the structure of a vLLM reranking API response?",
+      "answer": "The vLLM reranking API response is a JSON object containing an id, object type \"list\", creation timestamp, model name, a data array with score objects (each having index, object type \"score\", and numerical score), and a usage field. This follows the OpenAI-compatible server format for reranking responses.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/serving/openai_compatible_server.md",
+          "first_character_index": 22086,
+          "last_character_index": 22492
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+
+        {
+      "question_id": "37c64d82-3867-4c52-9f8c-5cc2b4d100cb",
+      "question": "Which quantization implementations in vLLM support AMD GPUs?",
+      "answer": "FP8 (W8A8) and GGUF are the only quantization implementations that support AMD GPUs in vLLM.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/features/quantization/supported_hardware.md",
+          "first_character_index": 146,
+          "last_character_index": 2057
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+
+        {
+      "question_id": "a7cdfc2f-2e0f-4a06-a372-c679caa106dd",
+      "question": "What type of language models are supported on TPU hardware in vLLM?",
+      "answer": "Text-only language models are supported on TPU hardware in vLLM.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/models/hardware_supported_models/tpu.md",
+          "first_character_index": 28,
+          "last_character_index": 57
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+	{
+      "question_id": "1df79b11-8504-48a1-a896-3a49366bfe7b",
+      "question": "What is the CLI command to run batch processing in vLLM?",
+      "answer": "The CLI command to run batch processing in vLLM is `vllm run-batch`.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/cli/run-batch.md",
+          "first_character_index": 0,
+          "last_character_index": 123
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+	{
+      "question_id": "d41cd2f0-9a89-4d18-b81c-d140924defe1",
+      "question": "What is the CLI command to start vLLM serve?",
+      "answer": "The CLI command to start vLLM serve is `vllm serve`, which supports JSON CLI arguments and various configuration options.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/cli/serve.md",
+          "first_character_index": 0,
+          "last_character_index": 115
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+
+Impossible:
+	{
+      "question_id": "6fb26de3-3c55-4686-8e2b-c260fc8ec68c",
+      "question": "What hardware platform does vLLM support for running models besides GPUs?",
+      "answer": "TPU (Tensor Processing Unit) - vLLM supports running models on TPUs as an alternative hardware platform.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/models/hardware_supported_models/tpu.md",
+          "first_character_index": 0,
+          "last_character_index": 5
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+	{
+      "question_id": "a2325363-af9f-455d-9af1-73c735640d25",
+      "question": "What is the CLI command for starting a chat interface in vLLM?",
+      "answer": "The CLI command for starting a chat interface in vLLM is `vllm chat`. This command provides various options for configuring the chat functionality as documented in the vLLM CLI reference.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/cli/chat.md",
+          "first_character_index": 0,
+          "last_character_index": 55
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+
+    
