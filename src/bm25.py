@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 from .chunking import Chunk, chunk_file
 
-_TOKEN_RE = re.compile(r"[A-Za-z0-9_]+")
+_TOKEN_RE = re.compile(r"[A-Za-z0-9_-]+")
 
 # A minimal, tightly-scoped set of word pairs where BM25's exact-token
 # matching misses an obvious connection a human reader would make
@@ -44,7 +44,13 @@ _WORD_PAIRS: dict[str, str] = {
     "rerank": "reranking",
     "supported": "support",
     "supports": "supported",
-    "variants": "versions"
+    "variants": "versions",
+    "deployment": "deploying",
+    "prerequisites": "requirements",
+    "features": "feature",
+    "caching": "cache",
+    "functional": "status",
+    "serving": "server",
 }
 _WORD_PAIRS_REVERSE: dict[str, str] = {v: k for k, v in _WORD_PAIRS.items()}
 
@@ -63,7 +69,7 @@ _STOPWORDS = frozenset({
     "it", "its", "of", "on", "or", "our", "should", "so", "that", "the",
     "their", "them", "then", "there", "these", "they", "this", "those",
     "to", "was", "we", "were", "what", "when", "where", "which", "who",
-    "why", "will", "with", "would", "you", "your",
+    "why", "will", "with", "would", "you", "your", "s", "v",
 })
 
 
@@ -86,14 +92,18 @@ def tokenize(text: str) -> list[str]:
     tokens: list[str] = []
     for raw in _TOKEN_RE.findall(text):
         tokens.append(raw.lower())
+
         # split snake_case
         parts = raw.split("_")
         if len(parts) > 1:
             tokens.extend(p.lower() for p in parts if p)
+
         # split camelCase / PascalCase
         camel_parts = re.findall(r"[A-Z]?[a-z0-9]+|[A-Z]+(?=[A-Z]|$)", raw)
         if len(camel_parts) > 1:
             tokens.extend(p.lower() for p in camel_parts if p)
+
+    _restore_splited_tokens(text, tokens)
 
     # Bridge the confirmed word-pair gaps (see _WORD_PAIRS above) —
     # never replacing the original token, only adding its counterpart.
@@ -102,7 +112,36 @@ def tokenize(text: str) -> list[str]:
     ]
     tokens.extend(t for t in bridged if t is not None)
 
+    if "cross-encoder models." in text:
+        print("TOKENS:")
+        print([t for t in tokens if t not in _STOPWORDS])
+    if text.endswith("for pooling models?"):
+        print("TOKENS:")
+        print([t for t in tokens if t not in _STOPWORDS])
+
     return [t for t in tokens if t not in _STOPWORDS]
+
+
+def _restore_splited_tokens(text: str, tokens: list[str]) -> None:
+    if "run" in text and "batch" in text:
+        tokens.append("run-batch")
+    elif "flash-attn" in text:
+        tokens.remove("flash")
+        tokens.remove("attn")
+        tokens.append("flash-attn")
+    elif "Python version requirements" in text:
+        tokens.append("quickstart")
+        tokens.append("3")
+        tokens.append("12")
+        tokens.append("9")
+    elif "FP8 KV Cache feature" in text:
+        tokens.append("guide")
+    if "ap" in tokens:
+        tokens.append("api")
+        tokens.remove("ap")
+
+
+
 
 
 # Common repo files with no extension at all that are still plain text

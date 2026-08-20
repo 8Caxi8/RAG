@@ -73,6 +73,7 @@ perguntas erradas:
       "difficulty": "synthetic",
       "is_valid": true
     },
+    
 
 Impossible:
 	{
@@ -103,5 +104,31 @@ Impossible:
       "difficulty": "synthetic",
       "is_valid": true
     },
-
-    
+        {
+      "question_id": "a7cdfc2f-2e0f-4a06-a372-c679caa106dd",
+      "question": "What type of language models are supported on TPU hardware in vLLM?",
+      "answer": "Text-only language models are supported on TPU hardware in vLLM.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/models/hardware_supported_models/tpu.md",
+          "first_character_index": 28,
+          "last_character_index": 57
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+        {
+      "question_id": "b2dc987d-1d07-4a3b-8204-e1d384accb7a",
+      "question": "What does the vLLM compatibility matrix show the relationship between?",
+      "answer": "The vLLM compatibility matrix shows the relationship between features and hardware, indicating which features are supported on different hardware configurations.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/features/compatibility_matrix.md",
+          "first_character_index": 2565,
+          "last_character_index": 2586
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },

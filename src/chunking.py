@@ -302,7 +302,7 @@ def chunk_text(
             current_end = end
 
     flush()
-    if file_path.endswith("installation/gpu/cuda.inc.md"):
+    if file_path.endswith("models/pooling_models.md"):
         for chunk in chunks:
             print("=" * 40)
             print(f"first_character: {chunk.first_character_index}")
@@ -311,7 +311,7 @@ def chunk_text(
             print("=" * 40)
 
         print("Expected:")
-        print(f"text:{text[0:1612]}")
+        print(f"text:{text[6951:7568]}")
     return chunks
 
 
