@@ -1,5 +1,19 @@
-perguntas erradas:
-- 2
+______________________________________________
+
+	    {
+      "question_id": "7954dc59-41cd-4529-af65-5d7cfa1c4556",
+      "question": "Which vLLM features are not supported on TPU hardware?",
+      "answer": "According to the vLLM compatibility matrix, TPU does not support Speculative Decoding (SD), CUDA graph, pooling models, encoder-decoder models, multimodal inputs, logprobs, and prompt logprobs features.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/features/compatibility_matrix.md",
+          "first_character_index": 2588,
+          "last_character_index": 4489
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
 
         {
       "question_id": "48723b36-2167-4949-a96c-1d599716c645",
@@ -31,20 +45,6 @@ perguntas erradas:
       "is_valid": true
     },
 
-        {
-      "question_id": "a7cdfc2f-2e0f-4a06-a372-c679caa106dd",
-      "question": "What type of language models are supported on TPU hardware in vLLM?",
-      "answer": "Text-only language models are supported on TPU hardware in vLLM.",
-      "sources": [
-        {
-          "file_path": "data/raw/vllm-0.10.1/docs/models/hardware_supported_models/tpu.md",
-          "first_character_index": 28,
-          "last_character_index": 57
-        }
-      ],
-      "difficulty": "synthetic",
-      "is_valid": true
-    },
 	{
       "question_id": "1df79b11-8504-48a1-a896-3a49366bfe7b",
       "question": "What is the CLI command to run batch processing in vLLM?",
@@ -127,6 +127,21 @@ Impossible:
           "file_path": "data/raw/vllm-0.10.1/docs/features/compatibility_matrix.md",
           "first_character_index": 2565,
           "last_character_index": 2586
+        }
+      ],
+      "difficulty": "synthetic",
+      "is_valid": true
+    },
+
+	    {
+      "question_id": "d9586da9-2b54-4009-bafb-50c9d77e1167",
+      "question": "What is the anchor link for the chat template section in vLLM's OpenAI compatible server documentation?",
+      "answer": "The anchor link for the chat template section is `#chat-template`, which can be used to directly navigate to that specific part of the OpenAI compatible server documentation.",
+      "sources": [
+        {
+          "file_path": "data/raw/vllm-0.10.1/docs/serving/openai_compatible_server.md",
+          "first_character_index": 3936,
+          "last_character_index": 3958
         }
       ],
       "difficulty": "synthetic",

@@ -26,7 +26,8 @@ class Chunk(BaseModel):
         if self.last_character_index < self.first_character_index:
             raise ValueError(
                 "last_character_index must be >= first_character_index "
-                f"(got {self.first_character_index} > {self.last_character_index})"
+                f"(got {self.first_character_index} > "
+                f"{self.last_character_index})"
             )
         return self
 
@@ -76,7 +77,8 @@ def _node_span(node: ast.stmt, line_offsets: list[int]) -> tuple[int, int]:
         A tuple (first_character_index, last_character_index).
     """
     start = line_offsets[node.lineno - 1] + node.col_offset
-    end_lineno = node.end_lineno if node.end_lineno is not None else node.lineno
+    end_lineno = (node.end_lineno
+                  if node.end_lineno is not None else node.lineno)
     end_col = node.end_col_offset if node.end_col_offset is not None else 0
     end = line_offsets[end_lineno - 1] + end_col
     return start, end
@@ -117,18 +119,9 @@ def _chunk_node(
             )
         ]
 
-    # Node is too big: try to recurse into its body (e.g. class -> methods).
     body = getattr(node, "body", None)
     if body:
         chunks: list[Chunk] = []
-
-        # The "header" of this node — everything from its own start up to
-        # the first child statement's start (e.g. a function's `def name(
-        # ...):` line and full signature, including type hints, or a
-        # class's `class Name(Base):` line) — is NOT itself one of the
-        # children in `body`. Without capturing it explicitly here, it
-        # would be silently dropped from every chunk: recursing only
-        # covers `body`'s children, never the node's own header text.
         first_child_start, _ = _node_span(body[0], line_offsets)
         if first_child_start > start:
             header_text = source[start:first_child_start]
@@ -144,16 +137,22 @@ def _chunk_node(
                     )
                 else:
                     chunks.extend(
-                        _split_oversized(file_path, header_text, start, max_chunk_size)
+                        _split_oversized(file_path,
+                                         header_text,
+                                         start,
+                                         max_chunk_size)
                     )
 
         for child in body:
             chunks.extend(
-                _chunk_node(file_path, source, child, line_offsets, max_chunk_size)
+                _chunk_node(file_path,
+                            source,
+                            child,
+                            line_offsets,
+                            max_chunk_size)
             )
         return chunks
 
-    # No sub-structure to exploit (e.g. a single huge expression): hard split.
     return _split_oversized(file_path, segment, start, max_chunk_size)
 
 
@@ -179,10 +178,13 @@ def chunk_python_source(
     line_offsets = _line_offsets(source)
     chunks: list[Chunk] = []
     for node in tree.body:
-        chunks.extend(_chunk_node(file_path, source, node, line_offsets, max_chunk_size))
+        chunks.extend(_chunk_node(file_path,
+                                  source,
+                                  node,
+                                  line_offsets,
+                                  max_chunk_size))
 
     if not chunks and source.strip():
-        # e.g. an empty module body but non-empty file (comments only).
         chunks = chunk_text(file_path, source, max_chunk_size)
 
     return chunks
@@ -225,15 +227,12 @@ def chunk_text(
     if not text.strip():
         return []
     if overlap >= max_chunk_size:
-        # An overlap this large would make chunks never progress through
-        # the file; clamp it to a sane fraction of the chunk size instead.
         overlap = max_chunk_size // 10
 
     if (file_path.endswith("s390x.inc.md") or
        file_path.endswith("arm.inc.md")):
         return []
 
-    # Split into paragraphs, keeping track of each paragraph's start offset.
     paragraphs: list[tuple[int, str]] = []
     pos = 0
     for part in _PARAGRAPH_RE.split(text):
@@ -247,7 +246,8 @@ def chunk_text(
         start, para = paragraphs[i]
         end = start + len(para)
         j = i
-        while _MARKDOWN_HEADER_RE.match(paragraphs[j][1].strip()) and j + 1 < len(paragraphs):
+        while (_MARKDOWN_HEADER_RE.match(paragraphs[j][1].strip()) and
+               j + 1 < len(paragraphs)):
             j += 1
             end = paragraphs[j][0] + len(paragraphs[j][1])
         merged_paragraphs.append((start, text[start:end]))
@@ -278,7 +278,10 @@ def chunk_text(
 
         if len(para) > max_chunk_size:
             flush()
-            chunks.extend(_split_oversized(file_path, para, start, max_chunk_size))
+            chunks.extend(_split_oversized(file_path,
+                                           para,
+                                           start,
+                                           max_chunk_size))
             current_start = None
             continue
 
@@ -290,28 +293,11 @@ def chunk_text(
         else:
             prev_end = current_end
             flush()
-            # Anchor the overlap on where the previous chunk ended (not on
-            # the new paragraph's start), so the new chunk repeats the
-            # tail of the previous one instead of collapsing back to 0.
             current_start = max(prev_end - overlap, 0)
-            # Guard: recovering overlap must never make this new chunk
-            # exceed max_chunk_size by itself — if `end` is far enough
-            # from `current_start` that the window would overflow, pull
-            # current_start forward just enough to fit exactly.
             current_start = max(current_start, end - max_chunk_size)
             current_end = end
 
     flush()
-    if file_path.endswith("models/pooling_models.md"):
-        for chunk in chunks:
-            print("=" * 40)
-            print(f"first_character: {chunk.first_character_index}")
-            print(f"last_character: {chunk.last_character_index}")
-            print(f"text:{chunk.text}")
-            print("=" * 40)
-
-        print("Expected:")
-        print(f"text:{text[6951:7568]}")
     return chunks
 
 

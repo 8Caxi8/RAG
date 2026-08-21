@@ -19,3 +19,6 @@ venv/
 vllm-0.10.1/
 datasets_public/
 sample_answers.sh
+moulinette_pkg/
+exams/
+evaluations/
